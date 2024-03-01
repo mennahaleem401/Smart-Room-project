@@ -14,12 +14,8 @@
 #define gas A0
 #define temp A1
 #define BUTTON A5
-#define POTEN A2
 
 LiquidCrystal LCD(RS,EN,D4,D5,D6,D7);
-
-int people=0,open_led=0,cnt=0,temperature=0;
-int read_gas=0,check=0,in=0,out=0;
 
 void setup()
 {
@@ -32,11 +28,13 @@ void setup()
   pinMode(gas,INPUT);
   pinMode(BUTTON,INPUT);
   LCD.begin(16,2);
-  pinMode(POTEN,INPUT);
 }
+
+int people=0,open_led=0,cnt=0,temperature=0,read_gas=0,check=0,in=0,out=0;
 
 void loop()
 {  
+  
     check_ir();
   
     check_Gas();
@@ -45,24 +43,11 @@ void loop()
   
     buttons();
   
-   if(digitalRead(W_led)==HIGH)
-   {
-     white_Led();
-   }
-}
-
-void white_Led()
-{
-  //control of led by poten 
-  
-  int read_poten=analogRead(POTEN);
-  int digital_value=map(read_poten,0,1023,0,255);
-  analogWrite(W_led,digital_value);   
 }
 
 void check_Gas()
 {
-  //take the read of gas sensor to check if turn on the buzzer or not if it's read more than 250
+  //take the read of the gas sensor to check if turn on the buzzer or not if it's read more than 250
   
   read_gas=analogRead(gas); 
   if(read_gas>=150)
@@ -79,7 +64,7 @@ void check_Gas()
 
 void check_Temperature()
 {
-   //take the read of temp sensor to check if turn on the red led or not if it's read more than 100
+   //take the read of the temp sensor to check if turn on the red led or not if it's read more than 100
   
    int volt=map(analogRead(temp),0,1023,0,5000);
    temperature=volt/10;
@@ -97,13 +82,14 @@ void check_Temperature()
 
 void check_ir()
 {
-  int read_out_ir=digitalRead(out_ir);
-   
-  if(read_out_ir==HIGH)
+ 
+  int read_out_ir=digitalRead(out_ir); //take the read of out ir
+    
+  if(read_out_ir==HIGH) //detect person
   {
-    while(digitalRead(out_ir)==1){}
+    while(digitalRead(out_ir)==1){} //wait until person walks away from the sensor
       
-    if(check==1&&in==1)
+    if(check==1&&in==1) //this means the person was inside the room exit
     {
        if(people>0)people--;
 
@@ -111,29 +97,30 @@ void check_ir()
          {
            digitalWrite(W_led,LOW);
          }
+      
          check=0;
          in=0;
     }
-    else
+    else //means the person is out of the room and will enter it
     {
       check=1;
       out=1;
     }
   }
   
-   int read_in_ir=digitalRead(in_ir);
+   int read_in_ir=digitalRead(in_ir); //take read of in ir
   
-    if(read_in_ir==HIGH)
+    if(read_in_ir==HIGH) //detect person
     {
-      while(digitalRead(in_ir)==1){}
-      if(check==1&&out==1)
+      while(digitalRead(in_ir)==1){} //wait until person walks away from the sensor
+      if(check==1&&out==1) //this means the person enter the room
       {
          people++;
          digitalWrite(W_led,HIGH);
          out=0;
          check=0;       
       }
-      else
+      else //means the person inside the room and will exit 
       {
         check=1;
         in=1;
@@ -150,7 +137,7 @@ void lcd_show()
        LCD.setCursor(0,0);
        LCD.print("Person in Room:");
        LCD.setCursor(0,1);
-       LCD.print("   ");
+       LCD.print("    ");
        LCD.setCursor(0,1);
        LCD.print(people);      
     }
@@ -159,7 +146,7 @@ void lcd_show()
       LCD.setCursor(0,0);
       LCD.print("Read of Gas:   ");
       LCD.setCursor(0,1);
-      LCD.print("   ");
+      LCD.print("    ");
       LCD.setCursor(0,1);
       LCD.print(read_gas);           
     }
@@ -177,15 +164,16 @@ void lcd_show()
 
 void buttons()
 {  
+  //take the read of a button to determine what action should do
    int read_btn=analogRead(BUTTON);
-   delay(10);
-   if(read_btn==487)
+   delay(10); //wait 10 milliseconds to avoid bouncing problem
+   if(read_btn>=480&&read_btn<=487) //read of right button
    {
      cnt++;
      if(cnt>2)cnt=0;
      lcd_show();
    }
-   else if(read_btn==738)
+   else if(read_btn>=730&&read_btn<=738) //read of left button
    {
      int read_w=digitalRead(W_led);
      digitalWrite(W_led,!read_w);
