@@ -61,7 +61,7 @@ At the end of this function call the lcd_show() function to show this reading in
 First, we put the check variable, in the flag and out flag equal zero which out flag refers to the person standing outside and wanting to enter the room, the in flag refers to the person standing inside and wanting to exit the room and the check variable refer to if the ir detect a person or not.
 We first check if the check=1&& the flag in=1 this means this person exits the room, else he wants to enter so put check =1 and out =1.
 
-2- Check the out_ir sensor
+2- Check the in_ir sensor
 
 we are using the in_ir sensor to detect also if the person wants to enter the room or wants to exit the room.
 We first check if the check=1&& the flag out=1 this means this person enters the room, else he wants to exit so put check =1 and in =1…
